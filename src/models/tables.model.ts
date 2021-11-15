@@ -1,4 +1,4 @@
-import {Entity, model, property, hasOne} from '@loopback/repository';
+import {Entity, model, property, hasMany} from '@loopback/repository';
 import {Order} from './order.model';
 
 @model()
@@ -20,16 +20,16 @@ export class Tables extends Entity {
     type: 'string',
     required: true,
   })
-  qr_code: string;
+  qrCode: string;
 
   @property({
     type: 'number',
     required: true,
   })
-  number_chairs: number;
+  numberChairs: number;
 
-  @hasOne(() => Order, {keyTo: 'idTable'})
-  order: Order;
+  @hasMany(() => Order, {keyTo: 'idTable'})
+  orders: Order[];
 
   constructor(data?: Partial<Tables>) {
     super(data);

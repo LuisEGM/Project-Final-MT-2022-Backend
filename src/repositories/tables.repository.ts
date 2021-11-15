@@ -1,5 +1,5 @@
-import {inject, Getter} from '@loopback/core';
-import {DefaultCrudRepository, repository, HasOneRepositoryFactory} from '@loopback/repository';
+import {Getter, inject} from '@loopback/core';
+import {DefaultCrudRepository, repository, HasManyRepositoryFactory} from '@loopback/repository';
 import {MongodbDataSource} from '../datasources';
 import {Tables, TablesRelations, Order} from '../models';
 import {OrderRepository} from './order.repository';
@@ -10,13 +10,13 @@ export class TablesRepository extends DefaultCrudRepository<
   TablesRelations
 > {
 
-  public readonly order: HasOneRepositoryFactory<Order, typeof Tables.prototype.idTable>;
+  public readonly orders: HasManyRepositoryFactory<Order, typeof Tables.prototype.idTable>;
 
   constructor(
     @inject('datasources.mongodb') dataSource: MongodbDataSource, @repository.getter('OrderRepository') protected orderRepositoryGetter: Getter<OrderRepository>,
   ) {
     super(Tables, dataSource);
-    this.order = this.createHasOneRepositoryFactoryFor('order', orderRepositoryGetter);
-    this.registerInclusionResolver('order', this.order.inclusionResolver);
+    this.orders = this.createHasManyRepositoryFactoryFor('orders', orderRepositoryGetter,);
+    this.registerInclusionResolver('orders', this.orders.inclusionResolver);
   }
 }
