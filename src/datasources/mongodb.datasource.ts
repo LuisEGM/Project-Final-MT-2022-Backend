@@ -1,10 +1,12 @@
 import {inject, lifeCycleObserver, LifeCycleObserver} from '@loopback/core';
 import {juggler} from '@loopback/repository';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const config = {
   name: 'mongodb',
   connector: 'mongodb',
-  url: 'mongodb+srv://root:root@cluster1.9p0wi.mongodb.net/restauranManagerDB?retryWrites=true&w=majority',
+  url: process.env.MONGODB_CONNECTION,
   host: '',
   port: 0,
   user: '',

@@ -20,6 +20,11 @@ export class Order extends Entity {
   })
   idTable?: string;
 
+  @property({
+    type: 'string',
+  })
+  idUser?: string;
+
   constructor(data?: Partial<Order>) {
     super(data);
   }
