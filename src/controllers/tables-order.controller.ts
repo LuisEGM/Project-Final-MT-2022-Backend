@@ -26,26 +26,26 @@ export class TablesOrderController {
     @repository(TablesRepository) protected tablesRepository: TablesRepository,
   ) { }
 
-  @get('/tables/{id}/order', {
+  @get('/tables/{id}/orders', {
     responses: {
       '200': {
-        description: 'Tables has one Order',
+        description: 'Array of Tables has many Order',
         content: {
           'application/json': {
-            schema: getModelSchemaRef(Order),
+            schema: {type: 'array', items: getModelSchemaRef(Order)},
           },
         },
       },
     },
   })
-  async get(
+  async find(
     @param.path.string('id') id: string,
     @param.query.object('filter') filter?: Filter<Order>,
-  ): Promise<Order> {
-    return this.tablesRepository.order(id).get(filter);
+  ): Promise<Order[]> {
+    return this.tablesRepository.orders(id).find(filter);
   }
 
-  @post('/tables/{id}/order', {
+  @post('/tables/{id}/orders', {
     responses: {
       '200': {
         description: 'Tables model instance',
@@ -67,10 +67,10 @@ export class TablesOrderController {
       },
     }) order: Omit<Order, 'idOrder'>,
   ): Promise<Order> {
-    return this.tablesRepository.order(id).create(order);
+    return this.tablesRepository.orders(id).create(order);
   }
 
-  @patch('/tables/{id}/order', {
+  @patch('/tables/{id}/orders', {
     responses: {
       '200': {
         description: 'Tables.Order PATCH success count',
@@ -90,10 +90,10 @@ export class TablesOrderController {
     order: Partial<Order>,
     @param.query.object('where', getWhereSchemaFor(Order)) where?: Where<Order>,
   ): Promise<Count> {
-    return this.tablesRepository.order(id).patch(order, where);
+    return this.tablesRepository.orders(id).patch(order, where);
   }
 
-  @del('/tables/{id}/order', {
+  @del('/tables/{id}/orders', {
     responses: {
       '200': {
         description: 'Tables.Order DELETE success count',
@@ -105,6 +105,6 @@ export class TablesOrderController {
     @param.path.string('id') id: string,
     @param.query.object('where', getWhereSchemaFor(Order)) where?: Where<Order>,
   ): Promise<Count> {
-    return this.tablesRepository.order(id).delete(where);
+    return this.tablesRepository.orders(id).delete(where);
   }
 }
