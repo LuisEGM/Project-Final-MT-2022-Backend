@@ -6,3 +6,6 @@ export * from './rol-user.controller';
 export * from './user-order.controller';
 export * from './user.controller';
 export * from './rol.controller';
+export * from './dish-category.controller';
+export * from './dish-category-plate.controller';
+export * from './plate.controller';
