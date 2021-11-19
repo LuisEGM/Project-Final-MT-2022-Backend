@@ -2,7 +2,7 @@ import {Entity, model, property, hasMany} from '@loopback/repository';
 import {Order} from './order.model';
 
 @model()
-export class Tables extends Entity {
+export class Table extends Entity {
   @property({
     type: 'string',
     id: true,
@@ -23,21 +23,21 @@ export class Tables extends Entity {
   qrCode: string;
 
   @property({
-    type: 'number',
+    type: 'string',
     required: true,
   })
-  numberChairs: number;
+  chairsNumber: string;
 
   @hasMany(() => Order, {keyTo: 'idTable'})
   orders: Order[];
 
-  constructor(data?: Partial<Tables>) {
+  constructor(data?: Partial<Table>) {
     super(data);
   }
 }
 
-export interface TablesRelations {
+export interface TableRelations {
   // describe navigational properties here
 }
 
-export type TablesWithRelations = Tables & TablesRelations;
+export type TableWithRelations = Table & TableRelations;

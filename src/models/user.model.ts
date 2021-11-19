@@ -1,4 +1,5 @@
-import {Entity, model, property, hasMany} from '@loopback/repository';
+import {Entity, model, property, belongsTo, hasMany} from '@loopback/repository';
+import {Rol} from './rol.model';
 import {Order} from './order.model';
 
 @model()
@@ -36,14 +37,11 @@ export class User extends Entity {
 
   @property({
     type: 'string',
-    required: true,
   })
-  password: string;
+  password?: string;
 
-  @property({
-    type: 'string',
-  })
-  idRol?: string;
+  @belongsTo(() => Rol, {name: 'rol'})
+  idRol: string;
 
   @hasMany(() => Order, {keyTo: 'idUser'})
   orders: Order[];

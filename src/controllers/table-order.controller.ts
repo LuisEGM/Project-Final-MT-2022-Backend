@@ -16,20 +16,20 @@ import {
   requestBody,
 } from '@loopback/rest';
 import {
-  Tables,
+  Table,
   Order,
 } from '../models';
-import {TablesRepository} from '../repositories';
+import {TableRepository} from '../repositories';
 
-export class TablesOrderController {
+export class TableOrderController {
   constructor(
-    @repository(TablesRepository) protected tablesRepository: TablesRepository,
+    @repository(TableRepository) protected tableRepository: TableRepository,
   ) { }
 
   @get('/tables/{id}/orders', {
     responses: {
       '200': {
-        description: 'Array of Tables has many Order',
+        description: 'Array of Table has many Order',
         content: {
           'application/json': {
             schema: {type: 'array', items: getModelSchemaRef(Order)},
@@ -42,24 +42,24 @@ export class TablesOrderController {
     @param.path.string('id') id: string,
     @param.query.object('filter') filter?: Filter<Order>,
   ): Promise<Order[]> {
-    return this.tablesRepository.orders(id).find(filter);
+    return this.tableRepository.orders(id).find(filter);
   }
 
   @post('/tables/{id}/orders', {
     responses: {
       '200': {
-        description: 'Tables model instance',
+        description: 'Table model instance',
         content: {'application/json': {schema: getModelSchemaRef(Order)}},
       },
     },
   })
   async create(
-    @param.path.string('id') id: typeof Tables.prototype.idTable,
+    @param.path.string('id') id: typeof Table.prototype.idTable,
     @requestBody({
       content: {
         'application/json': {
           schema: getModelSchemaRef(Order, {
-            title: 'NewOrderInTables',
+            title: 'NewOrderInTable',
             exclude: ['idOrder'],
             optional: ['idTable']
           }),
@@ -67,13 +67,13 @@ export class TablesOrderController {
       },
     }) order: Omit<Order, 'idOrder'>,
   ): Promise<Order> {
-    return this.tablesRepository.orders(id).create(order);
+    return this.tableRepository.orders(id).create(order);
   }
 
   @patch('/tables/{id}/orders', {
     responses: {
       '200': {
-        description: 'Tables.Order PATCH success count',
+        description: 'Table.Order PATCH success count',
         content: {'application/json': {schema: CountSchema}},
       },
     },
@@ -90,13 +90,13 @@ export class TablesOrderController {
     order: Partial<Order>,
     @param.query.object('where', getWhereSchemaFor(Order)) where?: Where<Order>,
   ): Promise<Count> {
-    return this.tablesRepository.orders(id).patch(order, where);
+    return this.tableRepository.orders(id).patch(order, where);
   }
 
   @del('/tables/{id}/orders', {
     responses: {
       '200': {
-        description: 'Tables.Order DELETE success count',
+        description: 'Table.Order DELETE success count',
         content: {'application/json': {schema: CountSchema}},
       },
     },
@@ -105,6 +105,6 @@ export class TablesOrderController {
     @param.path.string('id') id: string,
     @param.query.object('where', getWhereSchemaFor(Order)) where?: Where<Order>,
   ): Promise<Count> {
-    return this.tablesRepository.orders(id).delete(where);
+    return this.tableRepository.orders(id).delete(where);
   }
 }

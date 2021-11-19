@@ -1,4 +1,6 @@
-import {Entity, model, property} from '@loopback/repository';
+import {Entity, model, property, belongsTo, hasMany} from '@loopback/repository';
+import {DishCategory} from './dish-category.model';
+import {OrderDetails} from './order-details.model';
 
 @model()
 export class Plate extends Entity {
@@ -23,9 +25,9 @@ export class Plate extends Entity {
 
   @property({
     type: 'boolean',
-    required: true,
+    default: true,
   })
-  plateState: boolean;
+  plateState?: boolean;
 
   @property({
     type: 'string',
@@ -33,10 +35,11 @@ export class Plate extends Entity {
   })
   plateDescription: string;
 
-  @property({
-    type: 'string',
-  })
-  idDishCategory?: string;
+  @belongsTo(() => DishCategory, {name: 'dishCategory'})
+  idDishCategory: string;
+
+  @hasMany(() => OrderDetails, {keyTo: 'idPlate'})
+  orderDetails: OrderDetails[];
 
   constructor(data?: Partial<Plate>) {
     super(data);

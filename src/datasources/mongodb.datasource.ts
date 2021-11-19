@@ -6,7 +6,7 @@ dotenv.config();
 const config = {
   name: 'mongodb',
   connector: 'mongodb',
-  url: process.env.MONGODB_CONNECTION,
+  url: 'mongodb+srv://Sandres:Sergi*123@clusterprogweb.sothd.mongodb.net/Reto2?retryWrites=true&w=majority',
   host: '',
   port: 0,
   user: '',
