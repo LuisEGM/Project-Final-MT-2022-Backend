@@ -1,3 +1,4 @@
+import {service} from '@loopback/core';
 import {
   Count,
   CountSchema,
@@ -19,11 +20,15 @@ import {
 } from '@loopback/rest';
 import {User} from '../models';
 import {UserRepository} from '../repositories';
+import{AuthenticationService} from "../services";
+const fetch = require("node-fetch");
 
 export class UserController {
   constructor(
     @repository(UserRepository)
     public userRepository : UserRepository,
+    @service(AuthenticationService)
+    public authentication_service: AuthenticationService
   ) {}
 
   @post('/users')
@@ -44,7 +49,21 @@ export class UserController {
     })
     user: Omit<User, 'idUser'>,
   ): Promise<User> {
-    return this.userRepository.create(user);
+    let password = this.authentication_service.GenerarPasswordFunction();
+    let password_encrypt = this.authentication_service.EncryptPasswordFunction(password);
+    user.password = password_encrypt;
+    let inst_user = await this.userRepository.create(user);
+    //Cuerpo del correo
+    let destino = user.email;
+    let asunto = "Registro en la plataforma";
+    let contenido = `Atento saludo. Señor ${user.firstName}, nos ha suministrado este correo como correo de contacto ${user.email} y la contraseña es ${user.password}`
+    fetch(`http://127.0.0.1:5000/email?destino=${destino}&asunto=${asunto}&contenido=${contenido}`)
+    .then((data:any)=>{
+      console.log(data);
+    })
+    return inst_user;
+
+
   }
 
   @get('/users/count')
