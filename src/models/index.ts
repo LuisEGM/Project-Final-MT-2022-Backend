@@ -6,3 +6,4 @@ export * from './table.model';
 export * from './dish-category.model';
 export * from './plate.model';
 export * from './order-details.model';
+export * from './credenciales.model';

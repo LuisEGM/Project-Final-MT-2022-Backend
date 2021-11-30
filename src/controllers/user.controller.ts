@@ -1,30 +1,58 @@
+import {service} from '@loopback/core';
 import {
   Count,
   CountSchema,
   Filter,
   FilterExcludingWhere,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
-  post,
-  param,
-  get,
-  getModelSchemaRef,
-  patch,
-  put,
-  del,
-  requestBody,
-  response,
+  del, get,
+  getModelSchemaRef, HttpErrors, param, patch, post, put, requestBody,
+  response
 } from '@loopback/rest';
-import {User} from '../models';
+import {Llaves} from '../config/llaves';
+import {Credenciales, User} from '../models';
 import {UserRepository} from '../repositories';
+import {AutenticacionService} from '../services';
+const fetch = require('node-fetch');
 
 export class UserController {
   constructor(
     @repository(UserRepository)
     public userRepository : UserRepository,
+    @service(AutenticacionService)
+    public autenticacion_service : AutenticacionService
   ) {}
+
+
+    @post('/users/autenticacion', {
+      responses: {
+        "200": {
+          description: "Identificación de ususarios"
+        }
+      }
+    })
+    async identificarUser(
+      @requestBody() credenciales :Credenciales
+    ) {
+      const user = await this.autenticacion_service.identificarUser(credenciales.email, credenciales.password)
+      if (user) {
+        const token = this.autenticacion_service.generarTokenJWT(user);
+        return {
+          datos: {
+            nombre: user.firstName + " " + user.lastName,
+            correo: user.email,
+            id: user.idUser
+          },
+          token: token
+        }
+      }
+      else {
+        throw new HttpErrors[401]("Datos inválidos")
+      }
+    }
 
   @post('/users')
   @response(200, {
@@ -44,7 +72,24 @@ export class UserController {
     })
     user: Omit<User, 'idUser'>,
   ): Promise<User> {
-    return this.userRepository.create(user);
+    const password = this.autenticacion_service.generatePasswordFunction();
+    const passwordEncrypted = this.autenticacion_service.encryptPasswordFunction(password);
+    user.password= passwordEncrypted;
+    const instance_user = await this.userRepository.create(user);
+
+    //Cuerpo del sms
+    const receiver = user.email;
+    const sms = `Hola ${user.firstName}, este es tu numero de contacto ${user.email} y la contraseña que le asigno es: ${user.password}`;
+
+    fetch(`${Llaves.urlServicoNotificaciones}/api/v1/notification/send-message`, {
+      method: 'POST',
+      body: JSON.stringify({
+        "receiver": receiver,
+        "payload": sms
+      }),
+	    headers: {'Content-Type': 'application/json'}
+    })
+    return instance_user;
   }
 
   @get('/users/count')
