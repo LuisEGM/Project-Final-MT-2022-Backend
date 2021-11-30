@@ -1,25 +1,21 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
   Filter,
   FilterExcludingWhere,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
-  post,
-  param,
-  get,
-  getModelSchemaRef,
-  patch,
-  put,
-  del,
-  requestBody,
-  response,
+  del, get,
+  getModelSchemaRef, param, patch, post, put, requestBody,
+  response
 } from '@loopback/rest';
 import {Table} from '../models';
 import {TableRepository} from '../repositories';
 
+@authenticate("admin")
 export class TableController {
   constructor(
     @repository(TableRepository)
@@ -47,6 +43,7 @@ export class TableController {
     return this.tableRepository.create(table);
   }
 
+  @authenticate.skip()
   @get('/tables/count')
   @response(200, {
     description: 'Table model count',
