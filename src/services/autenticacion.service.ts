@@ -2,7 +2,7 @@ import { /* inject, */ BindingScope, injectable} from '@loopback/core';
 import {repository} from '@loopback/repository';
 import {Llaves} from '../config/llaves';
 import {User} from '../models';
-import {UserRepository} from '../repositories';
+import {RolRepository, UserRepository} from '../repositories';
 
 const encryptPassword = require('crypto-js');
 const generatePassword = require('password-generator');
@@ -12,7 +12,9 @@ const jwt = require('jsonwebtoken');
 export class AutenticacionService {
   constructor(
     @repository(UserRepository)
-    public userRepository: UserRepository
+    public userRepository: UserRepository,
+    @repository(RolRepository)
+    public rolRepository: RolRepository
   ) { }
 
   /*
@@ -39,13 +41,23 @@ export class AutenticacionService {
     }
   }
 
-  generarTokenJWT(user: User) {
-    const token = jwt.sign({
-      data: user.idUser,
-      email: user.email,
-      name: user.firstName + " " + user.lastName,
-    }, Llaves.claveJWT);
-    return token;
+  async generarTokenJWT(user: User) {
+    try {
+      const rol = await this.rolRepository.findOne({where: { idRol: user.idRol }});
+      if (rol) {
+        const token = jwt.sign({
+          data: user.idUser,
+          email: user.email,
+          name: user.firstName + " " + user.lastName,
+          rol: rol.rolName
+        }, Llaves.claveJWT);
+        return [token, rol.rolName];
+      }
+      return [];
+    } catch (error) {
+      console.log(error);
+      return [];
+    }
   }
 
 

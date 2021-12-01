@@ -39,14 +39,15 @@ export class UserController {
     ) {
       const user = await this.autenticacion_service.identificarUser(credenciales.email, credenciales.password)
       if (user) {
-        const token = this.autenticacion_service.generarTokenJWT(user);
+        const token = await this.autenticacion_service.generarTokenJWT(user);
         return {
           datos: {
             nombre: user.firstName + " " + user.lastName,
             correo: user.email,
-            id: user.idUser
+            id: user.idUser,
+            rol: token[1]
           },
-          token: token
+          token: token[0]
         }
       }
       else {
@@ -79,7 +80,7 @@ export class UserController {
 
     //Cuerpo del sms
     const receiver = user.email;
-    const sms = `Hola ${user.firstName}, este es tu numero de contacto ${user.email} y la contraseña que le asigno es: ${user.password}`;
+    const sms = `Hola ${user.firstName}, este es tu numero de contacto ${user.email} y la contraseña que le asigno es: ${password}`;
 
     fetch(`${Llaves.urlServicoNotificaciones}/api/v1/notification/send-message`, {
       method: 'POST',
