@@ -80,18 +80,58 @@ export class UserController {
 
     //Cuerpo del sms
     const receiver = user.email;
-    const sms = `Hola ${user.firstName}, este es tu numero de contacto ${user.email} y la contraseña que le asigno es: ${password}`;
 
-    fetch(`${Llaves.urlServicoNotificaciones}/api/v1/notification/send-message`, {
+    fetch(`${Llaves.urlServicoNotificaciones}/api/v1/notification/email/confirm-register`, {
       method: 'POST',
       body: JSON.stringify({
         "receiver": receiver,
-        "payload": sms
+        "name": `${instance_user.firstName} ${instance_user.lastName}`,
+        "password": password
       }),
 	    headers: {'Content-Type': 'application/json'}
     })
     return instance_user;
   }
+
+
+  @post('/users/recuperarPassword')
+  @response(200, {
+    description: 'Recuperar contraseña'
+    // content: {'application/json': {schema: getModelSchemaRef(User)}},
+  })
+  async recuperarPassword(
+    @requestBody() credenciales :Credenciales
+  ){
+
+    const user = await this.userRepository.findOne({where: {email: credenciales.email }});
+
+    if (user) {
+      const password = this.autenticacion_service.generatePasswordFunction();
+      const passwordEncrypted = this.autenticacion_service.encryptPasswordFunction(password);
+      user.password = passwordEncrypted;
+
+      await this.userRepository.update(user);
+
+      const { firstName, lastName } = user;
+
+      fetch(`${Llaves.urlServicoNotificaciones}/api/v1/notification/email/change-password`, {
+        method: 'POST',
+        body: JSON.stringify({
+          "receiver": credenciales.email,
+          "name": `${firstName} ${lastName}`,
+          "password": password
+        }),
+        headers: {'Content-Type': 'application/json'}
+      })
+      return user;
+    }
+    else {
+      throw new HttpErrors[401](`No existe un usuario con email: ${credenciales.email}`)
+    }
+  }
+
+
+
 
   @get('/users/count')
   @response(200, {
